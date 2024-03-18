@@ -8,6 +8,9 @@
 
 name: Java CI with Maven
 
+env:
+  JAVA_HOME: $HOME/bin/jdk
+
 on:
   push:
     branches: [ "main" ]
@@ -19,9 +22,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    -steps:
+    steps:
       - name : path
-        run:  mkdir $HOME/bin/jdk && echo "$HOME/bin/jdk" >> $GITHUB_PATH
+        run:  mkdir -p $JAVA_HOME  && echo $JAVA_HOME >> $GITHUB_PATH
+
       - name: download the jdk
         run:  setup_jdk.sh
 
