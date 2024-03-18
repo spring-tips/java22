@@ -27,7 +27,7 @@ jobs:
         run:  mkdir -p $JAVA_HOME  && echo $JAVA_HOME >> $GITHUB_PATH
 
       - name: download the jdk
-        run:  $GITHUB_WORKSPACE/setup_jdk.sh
+        run: pwd && $GITHUB_WORKSPACE/setup_jdk.sh
 
 ##    steps:
 ##    - uses: actions/checkout@v3
