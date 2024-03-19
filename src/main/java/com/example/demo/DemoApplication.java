@@ -24,7 +24,6 @@ public class DemoApplication {
 		return name -> loaderLookup.find(name).or(() -> stdlibLookup.find(name));
 	}
 
-	// NB: the demo has a nice feature, too: anonymous parameters
 	@Bean
 	ApplicationRunner demo(Map<String, LanguageDemonstrationRunner> demos) {
 		return _ -> demos.forEach((_, demo) -> {
