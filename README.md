@@ -5,7 +5,7 @@ Here's your text with grammar and spelling corrections:
 Hi, Spring fans! Happy [Java 22](https://blogs.oracle.com/java/post/the-arrival-of-java-22) release day, to those who
 celebrate! Did you get the bits already? Go, go, go! Java 22 is a _significant_ improvement that I think is a worthy
 upgrade for everyone. There are some big, final released features, like Project Panama, and a slew of even-better
-preview features. I couldn't hope to cover them all, but I did want to touch on a few of my favorites.
+preview features. I couldn't hope to cover them all, but I did want to touch on a few of my favorites. We're going to touch on a number of features. The code, if you want to follow along at home, [is  here (`https://github.com/spring-tips/java22`)](https://github.com/spring-tips/java22).
 
 I love Java 22, and of course, I love GraalVM, and both have releases today! Java is of course our favorite runtime and
 language, and GraalVM is a high-performance JDK distribution that supports additional languages and allows
