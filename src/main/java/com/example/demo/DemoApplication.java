@@ -1,7 +1,9 @@
 package com.example.demo;
 
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
@@ -20,7 +22,19 @@ public class DemoApplication {
 
     public static void main(String[] args) throws Throwable {
         SpringApplication.run(DemoApplication.class, args);
-        printf("hello, moto");
+
+    }
+
+    @Bean
+    ApplicationRunner demo() {
+        return args  -> {
+            try {
+                printf("hello, moto");
+            }//
+            catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        };
     }
 
     private static void printf(String greetings) throws Throwable {

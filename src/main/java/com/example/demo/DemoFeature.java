@@ -22,6 +22,7 @@ public class DemoFeature implements Feature {
                 JAVA_LONG, JAVA_LONG));
         RuntimeForeignAccess.registerForDowncall(FunctionDescriptor.of(ADDRESS, JAVA_INT, JAVA_INT), Linker.Option.firstVariadicArg(1));
         RuntimeForeignAccess.registerForDowncall(FunctionDescriptor.of(JAVA_INT, JAVA_LONG, JAVA_LONG), Linker.Option.firstVariadicArg(1));
+        RuntimeForeignAccess.registerForDowncall(FunctionDescriptor.of(JAVA_INT, ADDRESS));
         System.out.println("registered PRINTF functions");
 
     }
