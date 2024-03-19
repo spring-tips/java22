@@ -15,33 +15,35 @@ import java.lang.classfile.MethodModel;
 @ImportRuntimeHints(ClassParsing.Hints.class)
 class ClassParsing implements LanguageDemonstrationRunner {
 
-    static class Hints implements RuntimeHintsRegistrar {
+	static class Hints implements RuntimeHintsRegistrar {
 
-        @Override
-        public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
-            hints.resources().registerResource(DEFAULT_CUSTOMER_SERVICE_CLASS);
-        }
-    }
+		@Override
+		public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+			hints.resources().registerResource(DEFAULT_CUSTOMER_SERVICE_CLASS);
+		}
 
-    private final byte[] classFileBytes;
+	}
 
-    private static final Resource DEFAULT_CUSTOMER_SERVICE_CLASS =
-            new ClassPathResource("/simpleclassfile/DefaultCustomerService.class");
+	private final byte[] classFileBytes;
 
-    ClassParsing() throws Exception {
-        this.classFileBytes = DEFAULT_CUSTOMER_SERVICE_CLASS.getContentAsByteArray();
-    }
+	private static final Resource DEFAULT_CUSTOMER_SERVICE_CLASS = new ClassPathResource(
+			"/simpleclassfile/DefaultCustomerService.class");
 
-    @Override
-    public void run() throws Throwable {
-        var classModel = ClassFile.of().parse(this.classFileBytes);
-        for (var classElement : classModel) {
-            switch (classElement) {
-                case MethodModel mm -> System.out.printf("Method %s%n", mm.methodName().stringValue());
-                case FieldModel fm -> System.out.printf("Field %s%n", fm.fieldName().stringValue());
-                default -> {
-                }
-            }
-        }
-    }
+	ClassParsing() throws Exception {
+		this.classFileBytes = DEFAULT_CUSTOMER_SERVICE_CLASS.getContentAsByteArray();
+	}
+
+	@Override
+	public void run() throws Throwable {
+		var classModel = ClassFile.of().parse(this.classFileBytes);
+		for (var classElement : classModel) {
+			switch (classElement) {
+				case MethodModel mm -> System.out.printf("Method %s%n", mm.methodName().stringValue());
+				case FieldModel fm -> System.out.printf("Field %s%n", fm.fieldName().stringValue());
+				default -> {
+				}
+			}
+		}
+	}
+
 }

@@ -14,27 +14,25 @@ import static java.lang.foreign.ValueLayout.JAVA_INT;
 @Component
 class ManualFfi implements LanguageDemonstrationRunner {
 
-    static final FunctionDescriptor PRINTF_FUNCTION_DESCRIPTOR =
-            FunctionDescriptor.of(JAVA_INT, ADDRESS);
+	static final FunctionDescriptor PRINTF_FUNCTION_DESCRIPTOR = FunctionDescriptor.of(JAVA_INT, ADDRESS);
 
-    private final SymbolLookup symbolLookup;
+	private final SymbolLookup symbolLookup;
 
-    ManualFfi(SymbolLookup symbolLookup) {
-        this.symbolLookup = symbolLookup;
-    }
+	ManualFfi(SymbolLookup symbolLookup) {
+		this.symbolLookup = symbolLookup;
+	}
 
-    @Override
-    public void run() throws Throwable {
-        var symbolName = "printf";
-        var nativeLinker = Linker.nativeLinker();
-        var methodHandle = this.symbolLookup
-                .find(symbolName)
-                .map(symbolSegment -> nativeLinker
-                        .downcallHandle(symbolSegment, PRINTF_FUNCTION_DESCRIPTOR))
-                .orElse(null);
-        try (var arena = Arena.ofConfined()) {
-            var cString = arena.allocateFrom("hello, manual FFI!");
-            Objects.requireNonNull(methodHandle).invoke(cString);
-        }
-    }
+	@Override
+	public void run() throws Throwable {
+		var symbolName = "printf";
+		var nativeLinker = Linker.nativeLinker();
+		var methodHandle = this.symbolLookup.find(symbolName)
+			.map(symbolSegment -> nativeLinker.downcallHandle(symbolSegment, PRINTF_FUNCTION_DESCRIPTOR))
+			.orElse(null);
+		try (var arena = Arena.ofConfined()) {
+			var cString = arena.allocateFrom("hello, manual FFI!");
+			Objects.requireNonNull(methodHandle).invoke(cString);
+		}
+	}
+
 }

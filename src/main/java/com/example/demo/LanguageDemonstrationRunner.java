@@ -2,5 +2,7 @@ package com.example.demo;
 
 @FunctionalInterface
 interface LanguageDemonstrationRunner {
-    void run() throws Throwable;
+
+	void run() throws Throwable;
+
 }

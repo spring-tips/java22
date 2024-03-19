@@ -7,8 +7,9 @@ import org.springframework.stereotype.Component;
 @Component
 class DefaultCustomerService {
 
-    @EventListener
-    void ready(ApplicationReadyEvent re) {
-        System.out.println("a simple component that's ready [" + re + "]");
-    }
+	@EventListener
+	void ready(ApplicationReadyEvent re) {
+		System.out.println("a simple component that's ready [" + re + "]");
+	}
+
 }
