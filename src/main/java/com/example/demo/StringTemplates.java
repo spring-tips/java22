@@ -8,7 +8,9 @@ class StringTemplates implements LanguageDemonstrationRunner {
 	@Override
     public void run() throws Throwable {
         var name = "josh";
-        System.out.println(STR."name: \{name.toUpperCase()}");
+        System.out.println(STR."""
+            the name is: \{name.toUpperCase()}
+        """);
     }
 
 }

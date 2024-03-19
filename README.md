@@ -2,7 +2,9 @@ Here's your text with grammar and spelling corrections:
 
 # Hello, Java 22
 
-Hi, Spring fans! Happy [Java 22](https://blogs.oracle.com/java/post/the-arrival-of-java-22) release day, to those who celebrate! Did you get the bits already? Go, go, go! Java 22 is a _significant_ improvement that I think is a worthy upgrade for everyone. I love Java 22, and of course, I love GraalVM, and both have releases today! Java is of course our favorite runtime and language, and GraalVM is  a high-performance JDK distribution that supports additional languages and allows ahead-of-time (AOT) compilation (they're called GraalVM native images). GraalVM   includes all the niceties of the new Java 22 release, with some extra utilities, so I always recommend just downloading that one. I'm interested, specifically, in the GraalVM native image capability. The resulting binaries start almost instantly and take   considerably less  RAM compared to their JRE cousins. GraalVM isn't new, but it's worth remembering that Spring Boot has a great engine to support turning your Spring Boot applications into GraalVM native images. 
+Hi, Spring fans! Happy [Java 22](https://blogs.oracle.com/java/post/the-arrival-of-java-22) release day, to those who celebrate! Did you get the bits already? Go, go, go! Java 22 is a _significant_ improvement that I think is a worthy upgrade for everyone. There are some big, final released features, like Project Panama, and a slew of even-better preview features. I couldn't hope to cover them all, but I did want to touch on a few of my favorites.  
+
+I love Java 22, and of course, I love GraalVM, and both have releases today! Java is of course our favorite runtime and language, and GraalVM is  a high-performance JDK distribution that supports additional languages and allows ahead-of-time (AOT) compilation (they're called GraalVM native images). GraalVM   includes all the niceties of the new Java 22 release, with some extra utilities, so I always recommend just downloading that one. I'm interested, specifically, in the GraalVM native image capability. The resulting binaries start almost instantly and take   considerably less  RAM compared to their JRE cousins. GraalVM isn't new, but it's worth remembering that Spring Boot has a great engine to support turning your Spring Boot applications into GraalVM native images. 
 
 
 
@@ -453,6 +455,20 @@ These features are in preview in Java 22. I don't know that they're worth showin
 
 Virtual threads give you the amazing scale of something like `async`/`await` in Python, Rust, C#, TypeScript, JavaScript, or `suspend` in Kotlin, but without the inherent verbosity of code and busy work required to use those language features. It's one of the few times where, save for maybe Go's implementation, Java is just straight-up better in the result. Go's implementation is ideal, but only because they had this baked in to the 1.0 version. Indeed, Java's implementation is more remarkable precisely because it coexists with the older platform threads model.
 
+## Implicitly Declared Classes and Instance Main Methods
+
+This preview feature is huge quality-of-life win, even though the resulting code is smaller, and I warmly welcome it.
+Unfortunately doesn't really work with Spring Boot, at the moment. The basic idea is that one day you'll be able to just
+have a top-level main method, without all the ceremony inherent in Java today. Wouldn't this be nice as the entry point
+to your application? No `class` definition, no `public static void`, no unneeded `String[]` args.
+
+```java
+void main() {
+    System.out.println("Hello, world!");
+}
+
+```
+
 ## Statements Before Super
 
 This is a nice quality of life feature. Basically, Java doesn't let you access `this` before invoking the super
@@ -617,6 +633,105 @@ The example above demonstrates that gatherers are also composable. We actually h
 
 Still don't quite understand? I get the feeling that's going to be okay. This is a bit in the weeds for most folks, I'd imagine. Most of us don't need to write our own Gatherers. But you _can_. My friend [Gunnar Morling](https://www.morling.dev/blog/zipping-gatherer/) did just that the other day, in fact. The genius of the Gatherers approach is that now the community can scratch its own itch. I wonder what this implies for awesome projects like Eclipse Collections or Apache Commons Collections or Guava? Will they ship Gatherers? What other projects might?   I'd love to see a lot of common sense gatherers, eh, well, _gathered_ into one place.
 
+## Class Parsing API
+
+Yet another really nice preview feature, this new addition to the JDK is really tuned to framework and infrastructure
+folks. It answers questions like how do I build up a `.class` file, and how do I read a `.class` file? Right now the
+market is saturated with good, albeit incompatible and alway, by definition, ever so slightly out of date options like
+ASM (the 800 lb. gorilla in the space), ByteBuddy, CGLIB, etc. The JDK itself has three such solutions in its own
+codebase! These sorts of libraries are everywhere, and critical for developers who are building frameworks like Spring
+that generate classes at runtime to support your business logical. Think of this as a sort of reflection API, but
+for `.class` files - the literal bytecode on the disk. Not an object loaded into the JVM.
+
+Here's a trivial example that loads a `.class` file into a `byte[]` array and then introspects it.
+
+```java
+
+package com.example.demo;
+
+import org.springframework.aot.hint.RuntimeHints;
+import org.springframework.aot.hint.RuntimeHintsRegistrar;
+import org.springframework.context.annotation.ImportRuntimeHints;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
+
+import java.lang.classfile.ClassFile;
+import java.lang.classfile.FieldModel;
+import java.lang.classfile.MethodModel;
+
+@Component
+@ImportRuntimeHints(ClassParsing.Hints.class)
+class ClassParsing implements LanguageDemonstrationRunner {
+
+    static class Hints implements RuntimeHintsRegistrar {
+
+        @Override
+        public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+            hints.resources().registerResource(DEFAULT_CUSTOMER_SERVICE_CLASS);
+        }
+
+    }
+
+    private final byte[] classFileBytes;
+
+    private static final Resource DEFAULT_CUSTOMER_SERVICE_CLASS = new ClassPathResource(
+            "/simpleclassfile/DefaultCustomerService.class");
+
+    ClassParsing() throws Exception {
+        this.classFileBytes = DEFAULT_CUSTOMER_SERVICE_CLASS.getContentAsByteArray();
+    }
+
+    @Override
+    public void run() {
+        // this is the important logic
+        var classModel = ClassFile.of().parse(this.classFileBytes);
+        for (var classElement : classModel) {
+            switch (classElement) {
+                case MethodModel mm -> System.out.printf("Method %s%n", mm.methodName().stringValue());
+                case FieldModel fm -> System.out.printf("Field %s%n", fm.fieldName().stringValue());
+                default -> {
+                    // ... 
+                }
+            }
+        }
+    }
+
+}
+
+```
+
+This example is made a bit more complicated because I am reading a resource at runtime, so I implemented a Spring
+AOT `RuntimeHintsRegistrar` that results in a `.json` file with information about which resource I am reading,
+the `DefaultCustomerService.class` file itself. Ignore all that. It's just for the GraalVM native image compilation.
+
+The interesting bit is at the bottom, where we enumerate the `ClassElement` instances and then use some pattern matching
+to tease out individual elements. Nice!
+
+## String Templates
+
+Yet another preview feature, String templates bring String interpolation to Java! We've had multiline Java `String`
+values for a while. This new feature lets the language interpose variables available in scope in the compiled `String`
+value. The best part? In theory, the mechanism itself is pluggable! Don't like this syntax? Write your own.
+
+```java
+package com.example.demo;
+
+import org.springframework.stereotype.Component;
+
+@Component
+class StringTemplates implements LanguageDemonstrationRunner {
+
+    @Override
+    public void run() throws Throwable {
+        var name = "josh";
+        System.out.println(STR.""" 
+            name: \{name.toUpperCase()}
+            """);
+    }
+
+}
+```
 
 ## Conclusion 
 
