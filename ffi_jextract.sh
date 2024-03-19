@@ -27,7 +27,7 @@ wget -O $LOCAL_TGZ $REMOTE_TGZ
 tar -zxf "$LOCAL_TGZ" -C .
 export PATH=$PATH:$JEXTRACT_HOME/bin
 
-jextract  --source --output src/main/java  -t com.example.demo $STDIO
+jextract  --output src/main/java  -t com.example.stdio $STDIO
 
 
 #jextract --source --output src/main/java -t foreign.c -I c:\mingw\include c:\mingw\include\stdio.h
