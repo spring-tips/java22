@@ -51,6 +51,10 @@
                 <version>0.10.1</version>
                 <configuration>
                     <buildArgs>
+                        <buildArg>
+                             --features=com.example.demo.DemoFeature
+                        </buildArg>
+                        <buildArg> --enable-native-access=ALL-UNNAMED </buildArg>
                         <buildArg>-H:+ForeignAPISupport</buildArg>
                         <buildArg>-H:+UnlockExperimentalVMOptions</buildArg>
                     </buildArgs>
