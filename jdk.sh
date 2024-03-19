@@ -13,6 +13,7 @@ rm -rf "$JAVA_HOME"
 tar -zxf "$LOCAL_TGZ" -C .
 mv "graalvm-jdk-22+36.1" "$JAVA_HOME"
 
+#jextract --version
 java --version
 javac --version
 native-image --version
