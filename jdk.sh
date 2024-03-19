@@ -16,3 +16,4 @@ mv "graalvm-jdk-22+36.1" "$JAVA_HOME"
 java --version
 javac --version
 native-image --version
+

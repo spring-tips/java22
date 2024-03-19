@@ -31,3 +31,6 @@ jobs:
       - name: download the jdk
         run: cd $GITHUB_WORKSPACE && ./jdk.sh
 
+      - name: "build, you beautiful thing, build!"
+        run: cd $GITHUB_WORKSPACE && ./native.sh
+
