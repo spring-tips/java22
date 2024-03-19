@@ -1,4 +1,4 @@
-# Introducing Java 22
+# Hello, Java 22
 
 Hi, Spring fans! [Java 22](https://) is out today! Did you get the bits? Java 22 is a good improvement that i think is a worthy upgrade for everybody. i love java 22, and of course i love graalvm, which is a distributio of OpoenJDK didstributed by oracle and released on the same day. it includes all the niceties of the new java 22 release, with some extra utilities to support, among other things, compiling code into operating system and architecture specific binaries. these binaries start all but instantly and take a considerably smaller amount of ram compared to their jRE cousins. Graalvm isn't new, but it's just remeber that spring boot has a great engine to support turning your spring boot applications into gralvm native images. you can install graalvm for java 22 today, as well. 
 
@@ -161,10 +161,15 @@ I know, I know! There's a lot! But, not really. This is mostly identical to what
 - i added two new dependencies: `org.graalvm.sdk`:`graal-sdk`:`23.1.2` and `org.graalvm.nativeimage`:`svm`:`23.1.2`, both of which are exclusively for the creation of the GraalVM `Feature` implementationt hat we will need later.
 - i added configuration stanzas to the `<configuration>` sections of the `native-maven-plugin`, and the `spring-boot-maven-plugin`. 
 
-
 In no time at all, Spring Boot 3.3 will be GA and support Java 22, and so maybe half of this build will disappear. talk about "Spring" cleaning... 
 
+## A Brave New World
 
+Java 22 is an amazing new release. It brings with it a bevy of huge features and quality of life improvements. Remember, it can't always be this good! Nobody can introduce paradfigm changing new features cnosistently every six momths. It's just not possible. So,let's be thankful and emjoy it while we can, shall we? :) Java 21 is, in my estimation, maybe the single biggest release i've seen since perhaps Java 5, mayve even earlier. it might be the biggest ever! 
+
+there are a ton of features there that are well worth your attention, including _data oriented programming_ and _virtual threads_. 
+
+I covered this, and a lot more, in a blog I did to support the release six months ago, [_Hello, Java 21_](https://spring.io/blog/2023/09/20/hello-java-21). 
 
 
 
