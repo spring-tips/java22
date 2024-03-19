@@ -57,6 +57,7 @@
                         <buildArg> --enable-native-access=ALL-UNNAMED </buildArg>
                         <buildArg>-H:+ForeignAPISupport</buildArg>
                         <buildArg>-H:+UnlockExperimentalVMOptions</buildArg>
+                        <buildArg>--enable-preview</buildArg>
                     </buildArgs>
                 </configuration>
 
@@ -64,6 +65,13 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <jvmArguments>
+                        <compilerArgs>
+                            <arg>--enable-preview</arg>
+                        </compilerArgs>
+                    </jvmArguments>
+                </configuration>
             </plugin>
         </plugins>
     </build>
