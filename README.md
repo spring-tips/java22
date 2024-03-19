@@ -1,5 +1,3 @@
-Here's your text with grammar and spelling corrections:
-
 # Hello, Java 22
 
 Hi, Spring fans! Happy [Java 22](https://blogs.oracle.com/java/post/the-arrival-of-java-22) release day, to those who
