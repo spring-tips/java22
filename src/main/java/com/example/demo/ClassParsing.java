@@ -34,7 +34,7 @@ class ClassParsing implements LanguageDemonstrationRunner {
 	}
 
 	@Override
-	public void run() throws Throwable {
+	public void run() {
 		var classModel = ClassFile.of().parse(this.classFileBytes);
 		for (var classElement : classModel) {
 			switch (classElement) {
