@@ -173,6 +173,34 @@ I know, I know! There's a lot! But, not really. This is mostly identical to what
 
 In no time at all, Spring Boot 3.3 will be GA and support Java 22, and so maybe half of this build will disappear. talk about "Spring" cleaning... 
 
+## A Quick Programmign Note
+
+throughout this article Im going to refer to a functional interface type called `LanguageDemonstrationRunner`. It's just
+a functional interface that is declared to throw a `Throwable`, so that i dont have to worry about. I have
+an `ApplicationRunner` which in turn injects all implementations of my fucntinoal interface and then invokes their `run`
+method, catching and handling `Throwable`.
+
+```java 
+package com.example.demo;
+
+@FunctionalInterface
+interface LanguageDemonstrationRunner {
+
+    void run() throws Throwable;
+
+}
+```
+
+OK, moving on...
+
+## Bye, JNI! 
+
+this release sees the long awaited release of Project panama. this is one of the three features i've most been waiting for. (The other two - virtual threads and graalvm native images - haveen a reality for at least six months now!) and now, here's panaama. what is project panama? well, its the final frontier! its the thing that lets us leverage the galaxy of  C, C++, and basically any kind of binary if it supports ELF, one imagines. historically, java has been very insular. it has _not_ been easy for java developers to repurpose native C and c++ code. It makes sense. native, operating system-specific code could only serve to undermine the promise of _Write Once, Run Anywhere_. It's laways been a bit of taboo. But i don't why it should be. I mean, we've done alright, despite its absence. we've simply had to reinvent everything in an idiomatic, Java-style way. and this has helped, by and large. I know people always laud Python for the "Pythonic" style,  but there's tremenedous inconsistency across modular code, even within the same pthon sdk. this owes to a number of things, including radical syntax change, new paradigms (functinal or object-oriented).    
+ 
+https://github.com/oracle/graal/blob/master/docs/reference-manual/native-image/ForeignInterface.md
+https://www.baeldung.com/java-project-panama
+
+
 ## A Brave New World
 
 Java 22 is an amazing new release. It brings with it a bevy of huge features and quality of life improvements. Remember, it can't always be this good! Nobody can introduce paradfigm changing new features cnosistently every six momths. It's just not possible. So,let's be thankful and emjoy it while we can, shall we? :) Java 21 is, in my estimation, maybe the single biggest release i've seen since perhaps Java 5, mayve even earlier. it might be the biggest ever! 
@@ -258,12 +286,55 @@ Gatherers are  another nice  feature that is also in preview.    you may know my
 
 
 ```java 
- 
+package com.example.demo;
+
+import org.springframework.stereotype.Component;
+
+import java.util.Locale;
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
+import java.util.stream.Gatherer;
+import java.util.stream.Stream;
+
+@Component
+class Gatherers implements LanguageDemonstrationRunner {
+
+    private static <T, R> Gatherer<T, ?, R> scan(Supplier<R> initial,
+                                                 BiFunction<? super R, ? super T, ? extends R> scanner) {
+
+        class State {
+
+            R current = initial.get();
+
+        }
+        return Gatherer.<T, State, R>ofSequential(State::new,
+                Gatherer.Integrator.ofGreedy((state, element, downstream) -> {
+                    state.current = scanner.apply(state.current, element);
+                    return downstream.push(state.current);
+                }));
+    }
+
+    @Override
+    public void run() {
+        var listOfNumberStrings = Stream
+                .of(1, 2, 3, 4, 5, 6, 7, 8, 9)
+                .gather(scan(() -> "", (string, number) -> string + number)
+                        .andThen(java.util.stream.Gatherers.mapConcurrent(10, s -> s.toUpperCase(Locale.ROOT)))
+                )
+                .toList();
+        System.out.println(listOfNumberStrings);
+    }
+
+}
+
 ```
 
+the main thrust of that code that there's a method here, `scan`, which returns an implementatin of `Gatherer<T,?,R>`.
+Each `Gatherer<T,O,R>` expects an initializer and an integrator. It'll come with a default combiner, and a default
+finisher, though you can override both. This implementation reads through all those entries (numbers) and builds up a string for each entry that then accumulates every successive string. the result is that you `1`, `12`, `123`, `1234`, etc. 
 
+Still dont quite understand? I get the feeling that's going to be ok. this is a bit in the weeds for most folks, I'd imagine. Most of us don't need to writer our own Gatherers. But you can. My friend [Gunnar Morling](https://www.morling.dev/blog/zipping-gatherer/ ) did jsut that the other day, in fact. i wonder what this implies for awesome proejcts like eclipse collections? will they ship gatherers? what other projects might? the genius of the gatheres approach is that now the community can scratch its own itch. i'd love to see a lot of common sense gathers, eh, well, gathered into one place.
 
-## Project Panama: 
-https://github.com/oracle/graal/blob/master/docs/reference-manual/native-image/ForeignInterface.md
-https://www.baeldung.com/java-project-panama
+the example above demonstrates that gatheres are also composable. we actually have two `gatherer` in play: the one that does the scanning, and the one that maps every item to uppercase, and it does it concurrenrlty. 
+
 
