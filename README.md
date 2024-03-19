@@ -254,7 +254,12 @@ That class uses spring's `JdbcClient` to qeurty the underlying database. It page
 
 ## Gatherers 
 
-This is a feature that is also in preview.    you may know my friend Viktor Klang from his amazing work on Akka, the actor cluster, and the Scala language, at Lightbend. These days, he's a java language architect at Oracle, and one of the things he's been working on is the new gatherer api. this is yet another  
+Gatherers are  another nice  feature that is also in preview.    you may know my friend Viktor Klang from his amazing work on Akka, the actor cluster, and the Scala language, whilst he was at Lightbend. These days, he's a java language architect at Oracle, and one of the things he's been working on is the new gatherer api. the streams API, which was also introduced in Java 8, by the way - gave java develoeprs a chance, along with lamdas, to great simplify and modernize their existing code, adn to move in a more fucntional-programming centric direction. but, there are cracks in the abstraction. the Streams API has a number of very convenient operators that work for 99% of the scenarios, but when you find something for which a convenient operator doesn't exist, it can be frustrating. there have been countless proposals for new operators adding o the Streams api in the intervening ten years, and there were even discussions and ocnessions made in the original proposal for lambdas that the programming model be flexible [enough to support introducing new operators](https://cr.openjdk.org/~vklang/Gatherers.html). its finally arrived! Gatherers provide a slightly more low-level abstraction that gives you the ability to plugin all sorts of new operations on Streams, without having to materialize the `Stream` as a `Collection` at any point. heres an example i stole directly, and unabashedly, [from viktor and the team](https://docs.oracle.com/en/java/javase/22/docs/api/java.base/java/util/stream/Gatherer.html). 
+
+
+```java 
+ 
+```
 
 
 
