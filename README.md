@@ -2,11 +2,18 @@ Here's your text with grammar and spelling corrections:
 
 # Hello, Java 22
 
-Hi, Spring fans! Happy [Java 22](https://blogs.oracle.com/java/post/the-arrival-of-java-22) release day, to those who celebrate! Did you get the bits already? Go, go, go! Java 22 is a _significant_ improvement that I think is a worthy upgrade for everyone. There are some big, final released features, like Project Panama, and a slew of even-better preview features. I couldn't hope to cover them all, but I did want to touch on a few of my favorites.  
+Hi, Spring fans! Happy [Java 22](https://blogs.oracle.com/java/post/the-arrival-of-java-22) release day, to those who
+celebrate! Did you get the bits already? Go, go, go! Java 22 is a _significant_ improvement that I think is a worthy
+upgrade for everyone. There are some big, final released features, like Project Panama, and a slew of even-better
+preview features. I couldn't hope to cover them all, but I did want to touch on a few of my favorites.
 
-I love Java 22, and of course, I love GraalVM, and both have releases today! Java is of course our favorite runtime and language, and GraalVM is  a high-performance JDK distribution that supports additional languages and allows ahead-of-time (AOT) compilation (they're called GraalVM native images). GraalVM   includes all the niceties of the new Java 22 release, with some extra utilities, so I always recommend just downloading that one. I'm interested, specifically, in the GraalVM native image capability. The resulting binaries start almost instantly and take   considerably less  RAM compared to their JRE cousins. GraalVM isn't new, but it's worth remembering that Spring Boot has a great engine to support turning your Spring Boot applications into GraalVM native images. 
-
-
+I love Java 22, and of course, I love GraalVM, and both have releases today! Java is of course our favorite runtime and
+language, and GraalVM is a high-performance JDK distribution that supports additional languages and allows
+ahead-of-time (AOT) compilation (they're called GraalVM native images). GraalVM includes all the niceties of the new
+Java 22 release, with some extra utilities, so I always recommend just downloading that one. I'm interested,
+specifically, in the GraalVM native image capability. The resulting binaries start almost instantly and take
+considerably less RAM compared to their JRE cousins. GraalVM isn't new, but it's worth remembering that Spring Boot has
+a great engine to support turning your Spring Boot applications into GraalVM native images.
 
 ## Installation
 
@@ -735,3 +742,4 @@ class StringTemplates implements LanguageDemonstrationRunner {
 
 ## Conclusion 
 
+There's never been a better time to be a Java and Spring developer! I say it all the time. I feel like we're being given a brand new language and runtime, and it's being done - miraculously - in such a way as to not break backwards compatibility. This is one of the most ambitious software projects I've ever seen the Java community embark on, and we are lucky to be here to reap the rewards. I'll be using Java 22 and GraalVM support Java 22 for everything from now on, and I hope you will too. Thanks for reading along, and I hope if you liked it that you'll feel free to check out our Youtube channel where I will for sure [be covering more such features](https://bit.ly/spring-tips-playlist). 
