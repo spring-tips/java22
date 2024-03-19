@@ -26,11 +26,7 @@ public class DemoApplication {
     private static void printf(String greetings) throws Throwable {
         var symbolName = "printf";
         var nativeLinker = Linker.nativeLinker();
-        var stdlibLookup = nativeLinker.defaultLookup();
-        var loaderLookup = SymbolLookup.loaderLookup();
-        var compositeLookup = (SymbolLookup) name -> loaderLookup
-                .find(name)
-                .or(() -> stdlibLookup.find(name));
+        var compositeLookup = SymbolLookup.loaderLookup();
         var methodHandle = compositeLookup
                 .find(symbolName)
                 .map(symbolSegment -> nativeLinker.downcallHandle(symbolSegment, PRINTF_FUNCTION_DESCRIPTOR))
