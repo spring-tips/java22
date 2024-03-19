@@ -29,7 +29,8 @@ public class DemoApplication {
         var compositeLookup = SymbolLookup.loaderLookup();
         var methodHandle = compositeLookup
                 .find(symbolName)
-                .map(symbolSegment -> nativeLinker.downcallHandle(symbolSegment, PRINTF_FUNCTION_DESCRIPTOR))
+                .map(symbolSegment -> nativeLinker
+                        .downcallHandle(symbolSegment, PRINTF_FUNCTION_DESCRIPTOR))
                 .orElse(null);
         try (var arena = Arena.ofConfined()) {
             var cString = arena.allocateFrom(greetings);
