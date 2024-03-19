@@ -1,6 +1,5 @@
 package com.example.demo;
 
-import com.example.stdio.stdio_h;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -103,15 +102,6 @@ class StringTemplates implements LanguageDemonstrationRunner {
     }
 }
 
-@Component
-class JExtractFfi implements LanguageDemonstrationRunner {
-
-    @Override
-    public void run() throws Throwable {
-        stdio_h.putchar((int) 'c');
-    }
-
-}
 
 @Component
 class ManualFfi implements LanguageDemonstrationRunner {
