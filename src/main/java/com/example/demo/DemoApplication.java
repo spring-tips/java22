@@ -109,7 +109,6 @@ class JExtractFfi implements LanguageDemonstrationRunner {
     @Override
     public void run() throws Throwable {
 
-
     }
 
 }
