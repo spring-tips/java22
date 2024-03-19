@@ -195,15 +195,155 @@ OK, moving on...
 
 ## Bye, JNI! 
 
-this release sees the long awaited release of Project panama. this is one of the three features i've most been waiting for. (The other two - virtual threads and graalvm native images - haveen a reality for at least six months now!) and now, here's panaama. what is project panama? well, its the final frontier! its the thing that lets us leverage the galaxy of  C, C++, and basically any kind of binary if it supports ELF, one imagines. historically, java has been very insular. it has _not_ been easy for java developers to repurpose native C and c++ code. It makes sense. native, operating system-specific code could only serve to undermine the promise of _Write Once, Run Anywhere_. It's laways been a bit of taboo. But i don't why it should be. I mean, we've done alright, despite its absence. we've simply had to reinvent everything in an idiomatic, Java-style way. and this has helped, by and large. I know people always laud Python for the "Pythonic" style,  but there's tremenedous inconsistency across modular code, even within the same pthon sdk. this owes to a number of things, including radical syntax change, new paradigms (functinal or object-oriented).    
- 
-https://github.com/oracle/graal/blob/master/docs/reference-manual/native-image/ForeignInterface.md
-https://www.baeldung.com/java-project-panama
+this release sees the long awaited release of Project panama. this is one of the three features i've most been waiting
+for. (The other two - virtual threads and graalvm native images - have been a reality for at least six months now!) and
+now, here's panaama. what is project panama? well, it's the final frontier! it's the thing that lets us leverage the
+galaxy of C, C++, and basically any kind of binary if it supports ELF, one imagines. historically, java has been very
+insular. it has _not_ been easy for java developers to repurpose native C and c++ code. It makes sense. native,
+operating system-specific code could only serve to undermine the promise of _Write Once, Run Anywhere_. It's laways been
+a bit of taboo. But i don't why it should be. I mean, we've done alright, despite its absence. there is JNI, which is
+not what most people want. In order to use JNI, yo must write _new_ C/C++ code to glue together whatever language you
+want to use to Java. how is this productive? i thought the whole point was to get away from the dangers of those
+languages! Most people want to use JNI like they want a root canal. And the horrific sitaution has worked out alright.
+we've simply had to reinvent everything in an idiomatic, Java-style way. and this
+has helped, by and large. after all, for nearly anything you could want to do, there has probably been a pure Java
+soluition out there that runs anywhere Java does. It works fine, until.. it doesn't. Java has missed out on key
+opportunities here. Imagine if Kubernetes had been built in Java? Imagine if the current AI revolution was powered by
+Java? There are a lot of reasons why these two things would've been inconceivalbe when Numpy and Scipy and Kubernetes
+were first created, but today? I'm not so sure it would be so outlandish. Today, they released Project Panama. 
 
+Project Panama introduces an easy to way to linkedin to native code. There are two levels of support. You can in a rather low-level way manipulate memory, and pass data back and forth into native code. I said "back and forth," but I probably should've said down and up to native code. Proejct Panama supports "downcalls," calls into native code from Java, and "upcalls," calls from native code into Java. You can invoke functions, change memory,
+update fields in structs, etc. the possibilities are endless. Let's take a look at a simple example. The code uses the new `java.lang.foreign.*` APIs to look up a symbol called `printf` (which is basically `System.out.println()`), create a buffer in which to allocate memory (sort of like `malloc`), and then pass that buffer to the `printf` functino. 
+
+```java
+
+package com.example.demo;
+
+import org.springframework.stereotype.Component;
+
+import java.lang.foreign.Arena;
+import java.lang.foreign.FunctionDescriptor;
+import java.lang.foreign.Linker;
+import java.lang.foreign.SymbolLookup;
+import java.util.Objects;
+
+import static java.lang.foreign.ValueLayout.ADDRESS;
+import static java.lang.foreign.ValueLayout.JAVA_INT;
+
+@Component
+class ManualFfi implements LanguageDemonstrationRunner {
+
+	static final FunctionDescriptor PRINTF_FUNCTION_DESCRIPTOR = FunctionDescriptor.of(JAVA_INT, ADDRESS);
+
+	private final SymbolLookup symbolLookup;
+
+	ManualFfi(SymbolLookup symbolLookup) {
+		this.symbolLookup = symbolLookup;
+	}
+
+	@Override
+	public void run() throws Throwable {
+		var symbolName = "printf";
+		var nativeLinker = Linker.nativeLinker();
+		var methodHandle = this.symbolLookup.find(symbolName)
+			.map(symbolSegment -> nativeLinker.downcallHandle(symbolSegment, PRINTF_FUNCTION_DESCRIPTOR))
+			.orElse(null);
+		try (var arena = Arena.ofConfined()) {
+			var cString = arena.allocateFrom("hello, manual FFI!");
+			Objects.requireNonNull(methodHandle).invoke(cString);
+		}
+	}
+
+}
+```
+
+But what about graalvm? well,  you can do _some_ of what you can do in Panama, but not all of it. And, at least for the moment, it doesn't run on Apple Silicon. So i developed the example and setup a Github Action to see the results in an x86 Linux environment. Otherwise, i was pleased with the resutl. Remember, GraalVm wants to know about some of the dynamic things you're going to do at runtime. So you need to tell it. for most things, you need to write a `.json` configuration file (or let Spring's AOT engine write them for you). Here, sicne this is so new, you have to write a graalvm `Feature`, which in turn has callback methods that get invoked during Graalvms native compiltion. we just need tot tell graalvm the signature of the native function we'll be invoking via Panama at runtime. 
+
+```java
+package com.example.demo;
+
+import org.graalvm.nativeimage.hosted.Feature;
+import org.graalvm.nativeimage.hosted.RuntimeForeignAccess;
+
+import static com.example.demo.ManualFfi.PRINTF_FUNCTION_DESCRIPTOR;
+
+public class DemoFeature implements Feature {
+
+	@Override
+	public void duringSetup(DuringSetupAccess access) {
+		RuntimeForeignAccess.registerForDowncall(PRINTF_FUNCTION_DESCRIPTOR);
+	}
+
+}
+```
+
+And then we need to wire up the feature, telling graalvm about it, by passing in `--features` attribute to the graalvm native image maven plugin configuration. we also need to unlock the foreign api support and unlock experimental stuff. (i dont know why this is experimental in graalvm native images when its not experimental any longer in java 22 itself). also, we neeed to tell graalvm to allow native access for all unnamed types. so, altogether, here's the final Maven plugin configuration.
+
+```xml
+            <plugin>
+                <groupId>org.graalvm.buildtools</groupId>
+                <artifactId>native-maven-plugin</artifactId>
+                <version>0.10.1</version>
+                <configuration>
+                    <buildArgs>
+                        <buildArg> --features=com.example.demo.DemoFeature</buildArg>
+                        <buildArg> --enable-native-access=ALL-UNNAMED </buildArg>
+                        <buildArg> -H:+ForeignAPISupport</buildArg>
+                        <buildArg> -H:+UnlockExperimentalVMOptions</buildArg>
+                        <buildArg> --enable-preview</buildArg>
+                    </buildArgs>
+                </configuration>
+            </plugin>
+```
+
+This is an awesome result. I compiled the code in this example into a graalvm native image running on github actions runners and then executed it. the application, which - i remind you - has the Spring JDBC support and everything on the classpath - executes in 0.031 seconds (31 milliseconds), takes tens of megabytes of RAM, and invokes the native C code, from the graalvm native image! I'm so happy y'all. I've waited for this day for so long.
+
+But this does feel a little low-level. at the end of the day, you are using a Java API
+to programatically create and maintain structures in native code. It's sort of like using SQL dfrom JDBC. JDBC lets you manipulate SQL database records in Java, but you're not writing SQL in Java and compiling it in java and executing it in SQL. there's an abstraction delta; youre sending strings into the SQL engine and then getting records back out as `ResultSet`. zthe same is true for the low level API in Panama. 
+
+So, they released a tool called `jextract`. You can point it at a C header file, like `stdio.h`, in which the `printf` function is defined, and it'll generate Java code that mimics the call signature of the underlying C code. I wrote use it in this example because the resulting Java code ends up being tied to the underlying platform. I pointed it to `stdio.h` and got a whole bunch of macos specific definitions. I could hide all of that behind a runtime check for the operating system and then dynamically loading a particular implementation, but, eh, this blog's already too long. if you want to see how to run `jextract`, here's the bash script i used that worked for macos and linux. YMMV.
+
+
+
+```bash
+#!/usr/bin/env bash
+LINUX=https://download.java.net/java/early_access/jextract/22/3/openjdk-22-jextract+3-13_linux-x64_bin.tar.gz
+MACOS=https://download.java.net/java/early_access/jextract/22/3/openjdk-22-jextract+3-13_macos-x64_bin.tar.gz
+
+OS=$(uname)
+
+DL=""
+STDIO=""
+
+if [ "$OS" = "Darwin" ]; then
+    DL="$MACOS"
+    STDIO=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/stdio.h
+elif [ "$OS" = "Linux" ]; then
+    DL=$LINUX
+    STDIO=/usr/include/stdio.h
+else
+    echo "Are you running on Windows? This might work inside the Windows Subsystem for Linux, but I haven't tried it yet.."
+fi
+
+LOCAL_TGZ=tmp/jextract.tgz
+REMOTE_TGZ=$DL
+JEXTRACT_HOME=jextract-22
+
+mkdir -p "$( dirname  $LOCAL_TGZ )"
+wget -O $LOCAL_TGZ $REMOTE_TGZ
+tar -zxf "$LOCAL_TGZ" -C .
+export PATH=$PATH:$JEXTRACT_HOME/bin
+
+jextract  --output src/main/java  -t com.example.stdio $STDIO
+```
+
+
+Just think about it. We have easy foreign function interop, virtual threads giving us amazing scalability, and staticlaly linked self contained graalvm native image binaries. tell me why you'd start a new project in Go, again? :) 
+ 
 
 ## A Brave New World
 
-Java 22 is an amazing new release. It brings with it a bevy of huge features and quality of life improvements. Remember, it can't always be this good! Nobody can introduce paradfigm changing new features cnosistently every six momths. It's just not possible. So,let's be thankful and emjoy it while we can, shall we? :) Java 21 is, in my estimation, maybe the single biggest release i've seen since perhaps Java 5, mayve even earlier. it might be the biggest ever! 
+Java 22 is an amazing new release. It brings with it a bevy of huge features and quality of life improvements. Remember, it can't always be this good! Nobody can introduce paradfigm changing new features cnosistently every six momths. It's just not possible. So,let's be thankful and emjoy it while we can, shall we? :) the last release, Java 21 was, in my estimation, maybe the single biggest release i've seen since perhaps Java 5, mayve even earlier. it might be the biggest ever! 
 
 there are a ton of features there that are well worth your attention, including _data oriented programming_ and _virtual threads_. 
 

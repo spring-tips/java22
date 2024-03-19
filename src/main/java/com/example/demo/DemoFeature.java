@@ -5,9 +5,6 @@ import org.graalvm.nativeimage.hosted.RuntimeForeignAccess;
 
 import static com.example.demo.ManualFfi.PRINTF_FUNCTION_DESCRIPTOR;
 
-/**
- * registers the printf call for Graalvm native images
- */
 public class DemoFeature implements Feature {
 
 	@Override
