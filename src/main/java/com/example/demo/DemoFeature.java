@@ -3,7 +3,7 @@ package com.example.demo;
 import org.graalvm.nativeimage.hosted.Feature;
 import org.graalvm.nativeimage.hosted.RuntimeForeignAccess;
 
-import static com.example.demo.DemoApplication.PRINTF_FUNCTION_DESCRIPTOR;
+import static com.example.demo.ManualFfi.PRINTF_FUNCTION_DESCRIPTOR;
 
 /**
  * registers the printf call for Graalvm native images
