@@ -171,14 +171,49 @@ there are a ton of features there that are well worth your attention, including 
 
 I covered this, and a lot more, in a blog I did to support the release six months ago, [_Hello, Java 21_](https://spring.io/blog/2023/09/20/hello-java-21). 
 
+## virtual threads (yes, I know this was released six momths ago!)
 
+virtual threads are the really important bit, tho. read the blog i just linked you to, towards the bottom. (Don't be
+like the Primeagen, who read the article but managed to sort of move on before even getting to the best part - the
+virtual threads!)
 
+virtual threads are a way to squeeze more out of your cloud infrastructure spend, your hardware, etc., if you're running
+IO bound services. tey make it so that you can take existing code writtena gainst the blocking IO apis in `java.io`,
+switch to virtual threads, and suddenly handle with narry a few lines of code changes scale to much higher levels. the
+effect, usually, is that your system is no longer constantly waiting for threads to be available so the avergafe
+response time goes down, and - even nicer - you will see the handle many more rwquests at the same time! I cant stress
+this enough. vritual threads are _awesome_! and if u r using spring boot 3.2, you need only
+specify `spring.threads.virtual.enabled=true` to benefit from them!
+
+virtual threads are part of a slate of new features, which have been more than half a decade in coming, designed to make
+Java the lean mean scale machnie we all knew it deserved be. and it's working! virtual threads was 1/3, and is the only
+one that has been delivered in a GA form.
+
+there are two other features: structured concurrenc and scoped values, both of which have yet to land. Structured
+concurrency gives you a more elegant programin model for building concurrent code, and scoped values give you an
+efficient and more versatile alternative to `ThreadLocal<T>`, particularly useful in the context of virtual threads,
+where you can now realistically have _millions_ of threads. Imagine havign duplicated data for each of those! 
+
+these features are in preview in java 22. i don't know that they're worth showing, just yet. virtual threads are the magic piece, in my mind, and they are so magic precisely because you dont rally need to know about them! jsut set that one property and you're off. 
+
+virtual threads give you the amazing scale of something like   `async`/`await` in Python, Rust, C#, Typescript, JavaScript, or `suspend` in Kotlin, but without the inherit verbosity of code and busy work required to use those language features. it's one of the few times where, save for maybe Go's implementation, Java is jsut straight up better in the result. Gos implementation is ideal, but only because they had this baked in to the 1.0 version. Indeed, Javas implementation is more remarkable precisdely because it coexists with the older platform threads model. 
 
 ## unnamed variables and patterns
 
+when you're creating threads, or working with Java 8 streams and gatherers, you're going to be creating lots of lambdas. Indeed, there are plenty of situations - like the `JdbcClient` and its `RowMapper` interface - in Spring  where you'l be working with lambdas
+
+Fun fact: lambdas were first introduced in 2014's Java 8 release. (Yes, that was a _decade_ ago! People were  doing the ice bucket challenges, the world was obsessed with selfie sticks, _Froezen_, and _Flappy Bird_.) 
+
+The `RowMapper<T>` contract in spring's jdbc suport is very interesting. It makes the point very nicely: 
+
+
+
+
+
 
 ## Gatherers 
-https://www.morling.dev/blog/zipping-gatherer/ 
+
+This is a feature that is also in preview.    you may know my friend Viktor Klang from his amazing work on Akka, the actor cluster, and the Scala language, at Lightbend. These days, he's a java language architect at Oracle, and one of the things he's been working on is the new gatherer api. this is yet another  
 
 ## Runners Up 
 
