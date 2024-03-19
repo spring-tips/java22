@@ -16,7 +16,7 @@ At this point, i wanted to start building! so i went to my second favoeite place
 
 - i selected the `3.3.0-snapshot` version of Spring Boot. 3.3 is not yet GA, but it should be in a few short months. In the meantime, onward and upward! This gives us better support for Java 22.
 - i selected `Maven` as the build tool. 
-- i added `graalvm native image` support
+- i added `graalvm native image` support, `H2`, and the `JDBC` support
 
 I opened the project in my iDE, like this: `idea pom.xml`. Now I needed to configure a few of the Maven plugins to support both Java 22 and some of the preview features we're going to look at in this article. here's my fully configured `pom.xml`.
 
@@ -40,6 +40,16 @@ I opened the project in my iDE, like this: `idea pom.xml`. Now I needed to confi
         <java.version>22</java.version>
     </properties>
     <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -103,16 +113,16 @@ I opened the project in my iDE, like this: `idea pom.xml`. Now I needed to confi
 			<groupId>io.spring.javaformat</groupId>
 			<artifactId>spring-javaformat-maven-plugin</artifactId>
 			<version>0.0.41</version>
-                <executions>
-                    <execution>
-                        <phase>validate</phase>
-                        <inherited>true</inherited>
-                        <goals>
-                            <goal>validate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+			<executions>
+				<execution>
+					<phase>validate</phase>
+					<inherited>true</inherited>
+					<goals>
+						<goal>validate</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
         </plugins>
     </build>
     <repositories>
@@ -202,22 +212,51 @@ virtual threads give you the amazing scale of something like   `async`/`await` i
 
 when you're creating threads, or working with Java 8 streams and gatherers, you're going to be creating lots of lambdas. Indeed, there are plenty of situations - like the `JdbcClient` and its `RowMapper` interface - in Spring  where you'l be working with lambdas
 
-Fun fact: lambdas were first introduced in 2014's Java 8 release. (Yes, that was a _decade_ ago! People were  doing the ice bucket challenges, the world was obsessed with selfie sticks, _Froezen_, and _Flappy Bird_.) 
+Fun fact: lambdas were first introduced in 2014's Java 8 release. (Yes, that was a _decade_ ago! People were doing the ice bucket challenges, the world was obsessed with selfie sticks, _Frozen_, and _Flappy Bird_.) 
 
-The `RowMapper<T>` contract in spring's jdbc support is very interesting. It makes the point very nicely: 
+Lambdas are amazing. They introduce a new unit of reuse in the java language. and the best part is that thy were designed in such a way as to sort of graft on to the existing rules of the runtime, including adapting so-called _functional interfaces_  or SAMs (single abstract method) interfaces automatically to lambdas. My only complaint iwth them is that it was annoying havint to make things final that were referenced from within the lambda that belong to a containing scope. that's since been fixed. and it is annoying having to spell out every parameter to a lmbda even if i have no intentino on using it, and now, with java 222, that took ahs been fixed! 
+
+```java 
+package com.example.demo;
+
+import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.stereotype.Component;
+
+import javax.sql.DataSource;
+
+@Component
+class AnonymousLambdaParameters implements LanguageDemonstrationRunner {
+
+	private final JdbcClient db;
+
+	AnonymousLambdaParameters(DataSource db) {
+		this.db = JdbcClient.create(db);
+	}
+
+	record Customer(Integer id, String name) {
+	}
+
+	@Override
+	public void run() throws Throwable {
+		var allCustomers = this.db.sql("select * from customer ")
+			.query((rs, _) -> new Customer(rs.getInt("id"), rs.getString("name")))
+			.list();
+		System.out.println("all: " + allCustomers);
+	}
+
+}
+
+```
 
 
-
-
+That class uses spring's `JdbcClient` to qeurty the underlying database. It pages through the results, one by one, and then invokes our lambda, which conforms to the type `RowMapper<Customer>` to help in adapting our results into records that line up with my domain model. The `RowMapper<T>` interface method `T mapRow(ResultSet rs, int rowNum) throws SQLException;` expects two parameters: the `ResultSet`, which I'll need, and the `rowNum`, which I'll almost never need. Now, I don' need to specify it! Just plug in `_`, like in Kotlin or TypeScript. Nice! 
 
 
 ## Gatherers 
 
 This is a feature that is also in preview.    you may know my friend Viktor Klang from his amazing work on Akka, the actor cluster, and the Scala language, at Lightbend. These days, he's a java language architect at Oracle, and one of the things he's been working on is the new gatherer api. this is yet another  
 
-## Runners Up 
 
-* Scoped values
 
 ## Project Panama: 
 https://github.com/oracle/graal/blob/master/docs/reference-manual/native-image/ForeignInterface.md
