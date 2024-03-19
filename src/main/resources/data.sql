@@ -1,0 +1,9 @@
+insert into customer(name ) values ('Brian');
+insert into customer(name ) values ('Thomas');
+insert into customer(name ) values ('Alina');
+insert into customer(name ) values ('Stuart');
+insert into customer(name ) values ('Sharat');
+insert into customer(name ) values ('James');
+insert into customer(name ) values ('Ron');
+insert into customer(name ) values ('Billy');
+insert into customer(name ) values ('Heather');

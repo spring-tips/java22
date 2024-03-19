@@ -204,7 +204,7 @@ when you're creating threads, or working with Java 8 streams and gatherers, you'
 
 Fun fact: lambdas were first introduced in 2014's Java 8 release. (Yes, that was a _decade_ ago! People were  doing the ice bucket challenges, the world was obsessed with selfie sticks, _Froezen_, and _Flappy Bird_.) 
 
-The `RowMapper<T>` contract in spring's jdbc suport is very interesting. It makes the point very nicely: 
+The `RowMapper<T>` contract in spring's jdbc support is very interesting. It makes the point very nicely: 
 
 
 
