@@ -11,4 +11,8 @@ ls -la $JAVA_HOME || echo "could not stat $JAVA_HOME"
 ls -la $LOCAL_TGZ || echo "could not find local downloaded, $LOCAL_TGZ"
 du -hs $LOCAL_TGZ
 tar -zxf "$LOCAL_TGZ" -C "$JAVA_HOME"
-ls -la $LOCAL_TGZ
+ls -la $JAVA_HOME
+
+java --version
+javac --version
+native-image --version
