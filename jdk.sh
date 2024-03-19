@@ -10,8 +10,9 @@ wget -O $LOCAL_TGZ $REMOTE_TGZ
 ls -la $JAVA_HOME || echo "could not stat $JAVA_HOME"
 ls -la $LOCAL_TGZ || echo "could not find local downloaded, $LOCAL_TGZ"
 du -hs $LOCAL_TGZ
-tar -zxf "$LOCAL_TGZ" -C "$JAVA_HOME"
+tar -zxf "$LOCAL_TGZ" -C .
 ls -la $JAVA_HOME
+mv "graalvm-jdk-22+36.1" "$JAVA_HOME"
 
 java --version
 javac --version
