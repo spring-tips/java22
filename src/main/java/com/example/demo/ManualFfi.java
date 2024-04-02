@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import java.lang.foreign.Arena;
@@ -34,5 +36,19 @@ class ManualFfi implements LanguageDemonstrationRunner {
 			Objects.requireNonNull(methodHandle).invoke(cString);
 		}
 	}
+
+}
+
+@Configuration
+class ManualFfiConfiguration {
+
+	@Bean
+	SymbolLookup symbolLookup() {
+		var nativeLinker = Linker.nativeLinker();
+		var stdlibLookup = nativeLinker.defaultLookup();
+		var loaderLookup = SymbolLookup.loaderLookup();
+		return name -> loaderLookup.find(name).or(() -> stdlibLookup.find(name));
+	}
+
 
 }

@@ -17,14 +17,6 @@ public class DemoApplication {
 	}
 
 	@Bean
-	SymbolLookup symbolLookup() {
-		var nativeLinker = Linker.nativeLinker();
-		var stdlibLookup = nativeLinker.defaultLookup();
-		var loaderLookup = SymbolLookup.loaderLookup();
-		return name -> loaderLookup.find(name).or(() -> stdlibLookup.find(name));
-	}
-
-	@Bean
 	ApplicationRunner demo(Map<String, LanguageDemonstrationRunner> demos) {
 		return _ -> demos.forEach((_, demo) -> {
 			try {

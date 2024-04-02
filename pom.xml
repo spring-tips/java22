@@ -83,7 +83,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <compilerArguments> --enable-preview </compilerArguments>
-                    <jvmArguments> --enable-preview</jvmArguments>
+                    <jvmArguments> --enable-preview </jvmArguments>
                 </configuration>
             </plugin>
             <plugin>
